@@ -15,5 +15,11 @@ public class test {
         catch(Exception e){
             System.out.println(e);
         }
+        System.out.println(linked.size());
+        System.out.println(linked.toString());
+        System.out.println("Index is: " + Integer.toString(linked.indexOf("last")));
+        System.out.println("contains ABC ?: " + linked.contains("BC"));
+        linked.clear();
+        System.out.println("cleared list: " + linked.toString());
     }
 }

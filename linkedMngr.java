@@ -8,7 +8,10 @@ public class linkedMngr {
     linkedObj first;
     linkedObj last;
 
-    //constructors
+    /////////////////
+    //constructors//
+    ///////////////
+
     public linkedMngr(){
         //empty linked list
     }
@@ -41,6 +44,9 @@ public class linkedMngr {
             }
         }
     }
+    /////////////////////////////////////
+    //linked list manipulation methods//
+    ///////////////////////////////////
 
     //appends to end
     public void add(linkedObj obj){
@@ -53,7 +59,7 @@ public class linkedMngr {
     public void insert(linkedObj obj, int n){
         try {
             linkedObj target;
-            target = pGet(n);
+            target = get(n);
             obj.next = target.next;
             target.next = obj;
         } catch (Exception e) {
@@ -61,13 +67,12 @@ public class linkedMngr {
         } 
     }
 
-    //public getter method 
-    public linkedObj get(int n)throws LinkedListOutOfBoundsException{
-        return pGet(n);
-    }
+    ////////////////////////
+    //instance methods//
+    //////////////////////
 
     //gets object at place n, list starts at n = 0 
-    private linkedObj pGet(int n) throws LinkedListOutOfBoundsException{
+    public linkedObj get(int n) throws LinkedListOutOfBoundsException{
         linkedObj iter = this.first;
         int i = 0;
         while (!(iter == null)&& (i < n)){
@@ -80,6 +85,7 @@ public class linkedMngr {
         }
             return iter;
     }
+
 
     //TODO deprecate when finished, test print method
     public void print(){
@@ -95,8 +101,86 @@ public class linkedMngr {
         }
     }
 
-    public static void print(linkedObj obj){
-        System.out.println(obj.fName + " " + obj.lName + " " + obj.city + " " + obj.address + " " + obj.phoneNumber);
+    //instance method of size 
+    public int size(){
+        return linkedMngr.size(this.first);
     }
 
+    //instance method of clear
+    public void clear(){
+        linkedMngr.clear(this);
+    }
+
+    //instance method of toString
+    public String toString(){
+        return linkedMngr.toString(this.first);
+    }
+
+    //instance method of indexOf 
+    public int indexOf(String targetFName){
+        return linkedMngr.indexOf(this.first, targetFName, 0);
+    }
+
+    //instance method for contains, returns true if !(indexOf == -1) 
+    public boolean contains(String targetFName){
+        if(!(this.indexOf(targetFName) == -1)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    ///////////////////
+    //Static methods//
+    /////////////////
+    
+    //Print linkedObj 
+    public static void print(linkedObj obj){ //TODO make private
+        System.out.println(obj.fName + " " + obj.lName + " " + obj.city + " " + obj.address + " " + obj.phoneNumber);
+    }
+    
+    //recursize implementation of size when passing in a node goes from front --> end
+    private static int size(linkedObj obj){
+        if(obj == null){
+            return 0;
+        }
+        return size(obj.next)+ 1;
+    }
+
+    //clear(), clears each link between nodes and clears out the head and tail of the list
+    private static void clear(linkedMngr obj){
+        linkedMngr.clear(obj.first);
+        obj.first = null;
+        obj.last = null;
+    }
+
+    //recursively clear each link at in each node
+    private static void clear(linkedObj obj){
+        if (obj == null){
+            return;
+        }
+        clear(obj.next);
+        obj.next = null;
+    }
+
+    //to string, builds a string recursively with each node mapped out from front to back 
+    private static String toString(linkedObj obj){
+        if (obj == null){
+            return "null";
+        }
+        return obj.fName + " --> " + toString(obj.next);
+    }
+
+    //index of returns the index of an object based on it's first name value, traverses from front to back and returns first match
+    private static int indexOf(linkedObj obj, String target, int index){
+        if(obj == null){
+            return -1; 
+        }
+        if(obj.fName.matches(target)){
+            return index;
+        }
+        return indexOf(obj.next, target, index +1); 
+    }
+
+    //TODO doubly linked list
 }
