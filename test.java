@@ -5,7 +5,7 @@ public class test {
         linkedObj fTest = new linkedObj("first", "first", "first", "first", "first", null);
         linkedObj mTest = new linkedObj("middle", "middle", "middle", "middle", "middle", null);
         linkedObj lTest = new linkedObj("last", "last", "last", "last", "last", null);
-
+        /* 
         linkedObj[] lArr = {fTest, lTest};
         linkedMngr linked = new linkedMngr(lArr);
         linked.add(mTest);
@@ -16,5 +16,12 @@ public class test {
         System.out.println("contains ABC ?: " + linked.contains("BC"));
         linked.clear();
         System.out.println("cleared list: " + linked.toString());
+        */
+
+        linkedMngr linked = new linkedMngr();
+        linked.add(fTest);
+        linked.add(mTest);
+        linked.add(lTest);
+        System.out.println(linked.toString());
     }
 }

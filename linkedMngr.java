@@ -15,7 +15,7 @@
 public class linkedMngr {
     linkedObj head;
     linkedObj tail;
-    transient int size;
+    int size;
     /////////////////
     //constructors//
     ///////////////
@@ -53,13 +53,30 @@ public class linkedMngr {
     //Add to end 
     //EC addEnd() doubly linked implementation
     private void addEnd(linkedObj obj){
-        if (size == 1){
-            this.tail = obj;
-            this.tail.last = this.head;
-            this.head.next = this.tail;
+        if (size == 0){
+            this.tail = obj; 
+            this.tail.last = null;
             this.tail.next = null;
             size++;
             return;
+        } else if (size == 1){
+            if (tail == null){
+                this.tail = obj;
+                this.tail.last = this.head;
+                this.head.next = this.tail;
+                this.tail.next = null;
+                size++;
+                return;
+            } else {
+                    this.head = this.tail;
+                    this.tail = obj;
+                    this.tail.last = this.head; 
+                    this.head.next = this.tail;
+                    this.tail.next = null;
+                    this.head.last = null;
+                    size++;
+                    return; 
+                }
         }
         obj.last = this.tail;
         this.tail.next = obj;
@@ -70,6 +87,7 @@ public class linkedMngr {
     //Add to first
     //EC addFirst() doubly linked implementation
     private void addFirst(linkedObj obj){
+        if (!(this.head == null)) this.head.last = obj;
         obj.next = this.head;
         obj.last = null; 
         this.head = obj;
@@ -80,8 +98,9 @@ public class linkedMngr {
     //EC addN() doubly linked implementation 
     private void addN(linkedObj obj, int n){
         linkedObj target;
-        target = get(n);
+        target = get(n-1);
         obj.next = target.next;
+        if (!(obj.next == null)) obj.next.last = obj;
         obj.last = target;
         target.next = obj; 
         size++;
@@ -91,8 +110,12 @@ public class linkedMngr {
     //EC removeFirst() doubly linked implementation
     private void removeFirst(){
         linkedObj oldHead = this.head;
-        this.head = this.head.next;
-        this.head.last = null;
+        if (!(this.head.next == null)){ 
+            this.head = this.head.next;
+            this.head.last = null;
+        }else{
+                this.head = null;
+            }
         delete(oldHead);
         size--;
     }
@@ -101,8 +124,12 @@ public class linkedMngr {
     //EC removeLast() doubly linked implementation
     private void removeLast(){
         linkedObj oldTail = this.tail;
+        if(!(this.tail.last == null)){
         this.tail = this.tail.last;
         this.tail.next = null;
+        }else{
+            this.tail = null;
+        }
         delete(oldTail);
         size--;
     }
@@ -200,11 +227,7 @@ public class linkedMngr {
 
     //instance method for contains, returns true if !(indexOf == -1) 
     public boolean contains(String targetFName){
-        if(!(this.indexOf(targetFName) == -1)){
-            return true;
-        }else{
-            return false;
-        }
+        return !(this.indexOf(targetFName) == -1);
     }
 
     ///////////////////
@@ -213,6 +236,7 @@ public class linkedMngr {
 
     //print linkedMngr, starts at head and prints each node until end of list is reached
     private static void print(linkedMngr obj){
+        assert  obj.head != null;
         linkedObj iter = obj.head;
         int i = 0;
         System.out.println("Node #: " + i + " First Name: " + iter.fName + " Last Name: " + iter.lName + " City: " + iter.city + " Address: " + iter.address + " Phone Number: " + iter.phoneNumber);
@@ -266,7 +290,7 @@ public class linkedMngr {
         if (obj == null){
             return "null";
         }
-        return obj.fName + " --> " + toString(obj.next);
+        return obj.fName + " <--> " + toString(obj.next);
     }
 
     //index of returns the index of an object based on it's first name value, traverses from front to back and returns first match
@@ -274,7 +298,7 @@ public class linkedMngr {
         if(obj == null){
             return -1; 
         }
-        if(obj.fName.matches(target)){
+        if(obj.fName.equals(target)){
             return index;
         }
         return indexOf(obj.next, target, index +1); 
