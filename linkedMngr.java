@@ -1,13 +1,21 @@
-class LinkedListOutOfBoundsException extends Exception{
-    public LinkedListOutOfBoundsException(String m){
-        super(m);
-    }
-}
+//CS 145
+//Duncan Jackson
+//Linked List Lab
+//Extra credit: 
+//      linkedMngr() constructor passing array of linked list objects into array
+//Extra credit: implementation of doubly linked list at the following methods
+//      addEnd() doubly linked implementation
+//      addFirst() doubly linked implementation
+//      addN() doubly linked implementation
+//      removeFirst() doubly linked implementation
+//      removeLast() doubly linked implementation
+//      removeN() doubly linked implementation
+//      get() doubly linked implementation, traverses front-to-mid or back-to-mid based on n
 
 public class linkedMngr {
-    linkedObj first;
-    linkedObj last;
-
+    linkedObj head;
+    linkedObj tail;
+    transient int size;
     /////////////////
     //constructors//
     ///////////////
@@ -17,93 +25,161 @@ public class linkedMngr {
     }
 
     public linkedMngr(linkedObj first){
-        //linked list with 1 element
-        this.first = first;
-        this.last = first; 
-        this.first.next = null;
+        //linked list with 1 node
+        addFirst(first);
     }
 
     public linkedMngr(linkedObj first, linkedObj last){
-        //linkedlist with 2 elements 
-        this.first = first;
-        this.last = last; 
-        this.first.next = this.last;
-        this.last.next = null;
+        //linkedlist with 2 nodes 
+        addFirst(first);
+        addEnd(last);
     }
 
     //EC passing array of linked list objects into array
     public linkedMngr(linkedObj[] listArr){
         for(int i = 0; i <= listArr.length - 1; i++){
             if(i == 0 ){
-                this.first = listArr[i];
-                this.last = listArr[i];
-                this.first.next = null;
+                addFirst(listArr[i]);
             }
             else{
-                add(listArr[i]);
+                addEnd(listArr[i]);
             }
         }
     }
     /////////////////////////////////////
     //linked list manipulation methods//
     ///////////////////////////////////
+    
+    //Add to end 
+    //EC addEnd() doubly linked implementation
+    private void addEnd(linkedObj obj){
+        if (size == 1){
+            this.tail = obj;
+            this.tail.last = this.head;
+            this.head.next = this.tail;
+            this.tail.next = null;
+            size++;
+            return;
+        }
+        obj.last = this.tail;
+        this.tail.next = obj;
+        this.tail = obj;
+        this.tail.next = null;
+        size++;
+    }
+    //Add to first
+    //EC addFirst() doubly linked implementation
+    private void addFirst(linkedObj obj){
+        obj.next = this.head;
+        obj.last = null; 
+        this.head = obj;
+        size++;
+    }
 
+    //Inserts object at place n, first node of list is n = 0 
+    //EC addN() doubly linked implementation 
+    private void addN(linkedObj obj, int n){
+        linkedObj target;
+        target = get(n);
+        obj.next = target.next;
+        obj.last = target;
+        target.next = obj; 
+        size++;
+    }
+
+    //remove first
+    //EC removeFirst() doubly linked implementation
+    private void removeFirst(){
+        linkedObj oldHead = this.head;
+        this.head = this.head.next;
+        this.head.last = null;
+        delete(oldHead);
+        size--;
+    }
+
+    //remove end
+    //EC removeLast() doubly linked implementation
+    private void removeLast(){
+        linkedObj oldTail = this.tail;
+        this.tail = this.tail.last;
+        this.tail.next = null;
+        delete(oldTail);
+        size--;
+    }
+
+    //remove at object n
+    //EC removeN() doubly linked implementation
+    private void removeN(int n){
+        if(n==0){
+            removeFirst();
+        }else if(n == size-1){
+            removeLast();
+        }else {
+        linkedObj target = get(n);
+        linkedObj tHead = target.last;
+        linkedObj tTail = target.next;
+        tHead.next = tTail;
+        tTail.last = tHead;
+        delete(target);
+        size--; }
+    }
+    
     //appends to end
     public void add(linkedObj obj){
-        this.last.next = obj;
-        this.last = obj;
-        this.last.next = null;
+        addEnd(obj);
     }
 
-    //inserts object at place n, list starts at n = 0 
+    //public insert method
     public void insert(linkedObj obj, int n){
-        try {
-            linkedObj target;
-            target = get(n);
-            obj.next = target.next;
-            target.next = obj;
-        } catch (Exception e) {
-            System.out.println(e);
-        } 
+        addN(obj, n);
     }
 
-    ////////////////////////
+    //public remove method
+    public void remove(int n){
+        removeN(n);
+    }
+
+    /////////////////////
     //instance methods//
-    //////////////////////
+    ///////////////////
 
     //gets object at place n, list starts at n = 0 
-    public linkedObj get(int n) throws LinkedListOutOfBoundsException{
-        linkedObj iter = this.first;
-        int i = 0;
-        while (!(iter == null)&& (i < n)){
+    //EC get() doubly linked implementation, traverses front-to-mid or back-to-mid based on n
+    public linkedObj get(int n) {
+        linkedObj iter;
+        int i;
+        if (n <= size/2){ //traversal from start to middle
+            i = 0;
+            iter = this.head;
+            while (i < n){
             iter = iter.next;
-            i++;
+            i++; } 
+        } else { //traversal from end to middle + 1
+            i = size-1;
+            iter =this.tail;
+            while(i > n){
+                iter = iter.last; 
+                i--;
+            }
+
         }
-        //checks for out of bounds 
-        if (iter == null){
-            throw new LinkedListOutOfBoundsException("Out of bounds traversal of linked list");
-        }
-            return iter;
+        return iter;
     }
 
-
-    //TODO deprecate when finished, test print method
+    //instance method of print
     public void print(){
-        linkedObj iter = this.first;
-        int i = 0;
-        System.out.println("Element #: " + i + " First Name: " + iter.fName);
-        
-        i++;
-        while(!(iter.next == null)){
-            iter = iter.next;
-            System.out.println("Element #: " + i + " First Name: " + iter.fName);
-            i++;
-        }
+       linkedMngr.print(this);
+    }
+
+    //instance method of print node n 
+    public void print(int n){
+        linkedMngr.print(this.get(n));
     }
 
     //instance method of size 
     public int size(){
-        return linkedMngr.size(this.first);
+        assert size == linkedMngr.size(this.head);
+        return size;
     }
 
     //instance method of clear
@@ -112,13 +188,14 @@ public class linkedMngr {
     }
 
     //instance method of toString
+    @Override
     public String toString(){
-        return linkedMngr.toString(this.first);
+        return linkedMngr.toString(this.head);
     }
 
     //instance method of indexOf 
     public int indexOf(String targetFName){
-        return linkedMngr.indexOf(this.first, targetFName, 0);
+        return linkedMngr.indexOf(this.head, targetFName, 0);
     }
 
     //instance method for contains, returns true if !(indexOf == -1) 
@@ -133,9 +210,22 @@ public class linkedMngr {
     ///////////////////
     //Static methods//
     /////////////////
-    
+
+    //print linkedMngr, starts at head and prints each node until end of list is reached
+    private static void print(linkedMngr obj){
+        linkedObj iter = obj.head;
+        int i = 0;
+        System.out.println("Node #: " + i + " First Name: " + iter.fName + " Last Name: " + iter.lName + " City: " + iter.city + " Address: " + iter.address + " Phone Number: " + iter.phoneNumber);
+        i++;
+        while(!(iter.next == null)){
+            iter = iter.next;
+            System.out.println("Node #: " + i + " First Name: " + iter.fName + " Last Name: " + iter.lName + " City: " + iter.city + " Address: " + iter.address + " Phone Number: " + iter.phoneNumber);
+            i++;
+        }
+    }
+
     //Print linkedObj 
-    public static void print(linkedObj obj){ //TODO make private
+    private static void print(linkedObj obj){ 
         System.out.println(obj.fName + " " + obj.lName + " " + obj.city + " " + obj.address + " " + obj.phoneNumber);
     }
     
@@ -149,18 +239,26 @@ public class linkedMngr {
 
     //clear(), clears each link between nodes and clears out the head and tail of the list
     private static void clear(linkedMngr obj){
-        linkedMngr.clear(obj.first);
-        obj.first = null;
-        obj.last = null;
+        linkedMngr.clear(obj.head);
+        obj.head = null;
+        obj.tail = null;
+        obj.size = 0;
     }
 
-    //recursively clear each link at in each node
+    //recursively clear each link at in each node, should not be called directly
     private static void clear(linkedObj obj){
         if (obj == null){
             return;
         }
         clear(obj.next);
         obj.next = null;
+        obj.last = null;
+    }
+
+    //deletes list links in an object 
+    private static void delete(linkedObj obj){
+        obj.next = null;
+        obj.last = null;
     }
 
     //to string, builds a string recursively with each node mapped out from front to back 
@@ -181,6 +279,4 @@ public class linkedMngr {
         }
         return indexOf(obj.next, target, index +1); 
     }
-
-    //TODO doubly linked list
 }

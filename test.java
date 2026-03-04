@@ -10,11 +10,6 @@ public class test {
         linkedMngr linked = new linkedMngr(lArr);
         linked.add(mTest);
         linked.print();
-        try{
-        linkedMngr.print(linked.get(1));}
-        catch(Exception e){
-            System.out.println(e);
-        }
         System.out.println(linked.size());
         System.out.println(linked.toString());
         System.out.println("Index is: " + Integer.toString(linked.indexOf("last")));

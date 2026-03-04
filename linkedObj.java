@@ -7,7 +7,8 @@ public class linkedObj {
     String phoneNumber;
 
     //linked list object
-    linkedObj next; 
+    linkedObj next;
+    linkedObj last;
 
     //constructor
     public linkedObj(String fName, String lName, String address, String city, String phoneNumber, linkedObj next){
