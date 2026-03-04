@@ -21,7 +21,7 @@ public class test {
         linkedMngr linked = new linkedMngr();
         linked.add(fTest);
         linked.add(mTest);
-        linked.add(lTest);
+        linked.removeLast();
         System.out.println(linked.toString());
     }
 }

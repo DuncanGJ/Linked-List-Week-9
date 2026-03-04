@@ -54,29 +54,18 @@ public class linkedMngr {
     //EC addEnd() doubly linked implementation
     private void addEnd(linkedObj obj){
         if (size == 0){
-            this.tail = obj; 
-            this.tail.last = null;
-            this.tail.next = null;
+            this.head = obj; 
+            this.head.last = null;
+            this.head.next = null;
             size++;
             return;
         } else if (size == 1){
-            if (tail == null){
-                this.tail = obj;
-                this.tail.last = this.head;
-                this.head.next = this.tail;
-                this.tail.next = null;
-                size++;
-                return;
-            } else {
-                    this.head = this.tail;
-                    this.tail = obj;
-                    this.tail.last = this.head; 
-                    this.head.next = this.tail;
-                    this.tail.next = null;
-                    this.head.last = null;
-                    size++;
-                    return; 
-                }
+            this.tail = obj;
+            this.tail.last = this.head;
+            this.head.next = this.tail;
+            this.tail.next = null;
+            size++;
+            return;
         }
         obj.last = this.tail;
         this.tail.next = obj;
@@ -97,6 +86,13 @@ public class linkedMngr {
     //Inserts object at place n, first node of list is n = 0 
     //EC addN() doubly linked implementation 
     private void addN(linkedObj obj, int n){
+        if (n==0) {
+            addFirst(obj);
+            return;
+        } else if (n == size){
+            addEnd(obj);
+            return;
+        }
         linkedObj target;
         target = get(n-1);
         obj.next = target.next;
@@ -108,11 +104,12 @@ public class linkedMngr {
 
     //remove first
     //EC removeFirst() doubly linked implementation
-    private void removeFirst(){
+    public void removeFirst(){
         linkedObj oldHead = this.head;
         if (!(this.head.next == null)){ 
             this.head = this.head.next;
             this.head.last = null;
+            if (size == 2) this.tail = null;
         }else{
                 this.head = null;
             }
@@ -122,11 +119,14 @@ public class linkedMngr {
 
     //remove end
     //EC removeLast() doubly linked implementation
-    private void removeLast(){
+    public void removeLast(){
         linkedObj oldTail = this.tail;
-        if(!(this.tail.last == null)){
-        this.tail = this.tail.last;
-        this.tail.next = null;
+        if (size==2) {
+                this.head.next = null;
+                this.tail = null;
+        } else if(!(this.tail.last == null)){
+            this.tail = this.tail.last;
+            this.tail.next = null;
         }else{
             this.tail = null;
         }

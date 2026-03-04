@@ -7,6 +7,7 @@ public class linkedObj {
     String phoneNumber;
 
     //linked list object
+    //EC doubly linked list implementation
     linkedObj next;
     linkedObj last;
 
