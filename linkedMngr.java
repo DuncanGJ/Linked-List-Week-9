@@ -79,6 +79,7 @@ public class linkedMngr {
         if (!(this.head == null)) this.head.last = obj;
         obj.next = this.head;
         obj.last = null; 
+        if (size == 1) this.tail = this.head;
         this.head = obj;
         size++;
     }
@@ -104,7 +105,7 @@ public class linkedMngr {
 
     //remove first
     //EC removeFirst() doubly linked implementation
-    public void removeFirst(){
+    private void removeFirst(){
         linkedObj oldHead = this.head;
         if (!(this.head.next == null)){ 
             this.head = this.head.next;
@@ -119,7 +120,7 @@ public class linkedMngr {
 
     //remove end
     //EC removeLast() doubly linked implementation
-    public void removeLast(){
+    private void removeLast(){
         linkedObj oldTail = this.tail;
         if (size==2) {
                 this.head.next = null;
@@ -127,8 +128,6 @@ public class linkedMngr {
         } else if(!(this.tail.last == null)){
             this.tail = this.tail.last;
             this.tail.next = null;
-        }else{
-            this.tail = null;
         }
         delete(oldTail);
         size--;
