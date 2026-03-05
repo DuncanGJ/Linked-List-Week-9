@@ -1,5 +1,6 @@
 #pragma once
 #include "linkedObj.h"
+#include <stdexcept>
 class XORLinkedList{
 private:
     linkedObj* head;
@@ -54,22 +55,33 @@ public:
         if (n < 0 || n >= size) {
             throw std::out_of_range("index out of bounds"); //fails early
         }
+        if (size == 0 ){
+            throw std::out_of_range("empty list"); //fails early
+        }
+
+        linkedObj* target = get(n); 
+        if (size ==1){
+            delete target;
+            head = nullptr;
+            tail = nullptr;
+            size--;
+            return; 
+        }
 
         linkedObj* prev = (n==0) ? nullptr : get(n-1);
         linkedObj* next = (n==size-1) ? nullptr : get(n+1);
-        linkedObj* target = get(n); 
+        
 
-        if (prev != nullptr) prev -> xorptr ^=  (uintptr_t)target ^ (uintptr_t) next;
-        else {
+        if(n==0){//case if removing head
+            next -> xorptr ^= (uintptr_t)target ^0;
             head = next;
-            head->xorptr ^= (uintptr_t) target ^ 0;
-        }
-        if(next != nullptr) next->xorptr ^= (uintptr_t) target ^ (uintptr_t) prev;
-        else{
+        } else if(n == size-1){//case if removing tail
+            prev -> xorptr ^= (uintptr_t)target ^0;
             tail = prev;
-            tail->xorptr ^= (uintptr_t) target ^ 0;
+        } else{ //all other cases
+            prev -> xorptr ^= (uintptr_t)target ^ (uintptr_t) next;
+            next -> xorptr ^= (uintptr_t)target ^ (uintptr_t) prev;
         }
-
         delete target;
         size--;
     }    
