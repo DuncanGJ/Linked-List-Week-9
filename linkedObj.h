@@ -1,6 +1,6 @@
+#pragma once 
 #include <string>
 using std::string;
-#pragma once 
 class linkedObj{
 public:
     string fName;
