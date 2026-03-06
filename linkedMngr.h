@@ -25,7 +25,7 @@ public:
         delete(tail);
     }
 
-    //very basic append function
+    //very basic append method
     void append(const string& fName, const string& lName, const string& address, const string& city, const string& phoneNumber){
         linkedObj* node = new linkedObj(fName, lName, address, city, phoneNumber); //instantiates new list node 
         if(head==nullptr){ //empty list case 
@@ -39,8 +39,31 @@ public:
         size++; //increases our size
     }
 
-    //Returns node n 
-    linkedObj* get(int n){
+    //insert method 
+    void insert(int place, const string& fName, const string& lName, const string& address, const string& city, const string& phoneNumber){
+        if(place < 0 || place >= size){
+            throw std::out_of_range("index out of bounds");
+        }
+
+        linkedObj* node = new linkedObj(fName, lName, address, city, phoneNumber); //instantiates new list node 
+        linkedObj* target;
+        uintptr_t prev;
+        auto [target, prev] = get(place-1);
+        
+        target->xorptr ^= prev ^ (uintptr_t) node; //replaces prev ptr with node's pointer in target. The beauty of XOR is that this is symmetric for head and tail
+        node-> xorptr = prev ^ (uintptr_t) target; //inserts prev and next node in our XORed ptr, again symmetric in case of head or tail
+        if(prev == 0){
+            if(place = 0){
+                head = node;
+            } else if(place = size-1){
+                tail = node;
+            }
+        }
+
+
+    }
+    //Returns node n, return XORpair struct, which allows us to access nodes at an arbitrary index with just 1 traversal. Adds additional complexity in exchange for reducing the # of traversals required.
+    XORpair get(int n){
         if (n < 0 || n >= size) {
         throw std::out_of_range("index out of bounds"); //fails early
         }
@@ -62,7 +85,8 @@ public:
             prev = (uintptr_t) current; //casting pointer of current node as (uintptr_t) and setting it as our previous ptr for next loop
             current = (linkedObj*) next; //casting the uintptr_t typed pointer next as a linkedObj* so we can access it's xorptr value in the next loop
         }
-        return current; 
+
+        return XORpair{current, prev}; 
     }
 
     //removes node n
@@ -70,21 +94,24 @@ public:
         if (n < 0 || n >= size) {
             throw std::out_of_range("index out of bounds"); //fails early
         }
+        uintptr_t prevptr; //using this and then pushing to prev linkedObj* so that we can preserve the original structure of this method. If I was writing from scratch I would just store prev as uintptr_t
+        linkedObj* prev;
+        linkedObj* target;
+        linkedObj* next;
+        auto [target, prevptr] = get(n);
+        prev = (linkedObj*) prevptr; //kinda hacky
 
-        linkedObj* target = get(n); 
+        //handles case of deleting node from single element list 
         if (size ==1){
             delete target;
             head = nullptr;
             tail = nullptr;
             size--;
             return; 
-        }
-
-        linkedObj* prev = (n==0) ? nullptr : get(n-1);
-        linkedObj* next = (n==size-1) ? nullptr : get(n+1);
-        
+        }       
 
         if(n==0){//case if removing head
+            next = (linkedObj*) (target->xorptr ^ (uintptr_t) prev); //gathering next from prev & target
             next -> xorptr ^= (uintptr_t)target ^0;
             head = next;
         } else if(n == size-1){//case if removing tail
@@ -112,4 +139,9 @@ private:
         }
         return obj->fName + " <--> " + toString((linkedObj*)(obj->xorptr^prev), (uintptr_t) obj);
     }
+};
+
+struct XORpair{
+    linkedObj* node;
+    uintptr_t prev;
 };
