@@ -52,11 +52,15 @@ public:
         }
 
         linkedObj* node = new linkedObj(fName, lName, address, city, phoneNumber); //instantiates new list node 
-        auto [target, prev] = get(place-1); //using auto to assign returned struct fields to their respective local variables 
+        linkedObj* target;
+        uintptr_t prev;
+        XORpair pair = get(place-1);
+        target = pair.node;
+        prev = pair.prev;
         
         target->xorptr ^= prev ^ (uintptr_t) node; //replaces prev ptr with node's pointer in target. The beauty of XOR is that this is symmetric for head and tail
         node-> xorptr = prev ^ (uintptr_t) target; //inserts prev and next node in our XORed ptr, again symmetric in case of head or tail
-        if(prev == 0&& place ==1){
+        if(prev == 0 && place ==1){
             head = node;
         } else{
               ((linkedObj*) prev)->xorptr ^=   (uintptr_t) target ^ (uintptr_t) node; //for non-head/tail nodes we also clear the target node from it's xorptr and xor in the new node 
@@ -71,23 +75,26 @@ public:
 
         linkedObj* current;
         uintptr_t prev = 0; //starts at 0, 0^a = a, head and tail xorptr store value a (next and last nodes respectively)
-        int steps; 
+        //int steps; 
         
+        /* commenting out optimization because it is broken and I can't get the tail traversal to return correctly
         if (n < size/2){
             current = head; //if n is in the first half of the list start from the head 
             steps = n;
         } else {
             current = tail; //if n is in the last half start from the tail 
             steps = size - 1 - n; 
-        }
+        }*/
         
-        for (int i = 0; i < steps; i++){
+        //uintptr_t next;
+
+        for (int i = 0; i < n; i++){
             uintptr_t next = current -> xorptr ^ prev; //each xorptr stores (prev^next), (prev^next)^prev = next, symmetric works going backwards and forwards
             prev = (uintptr_t) current; //casting pointer of current node as (uintptr_t) and setting it as our previous ptr for next loop
             current = (linkedObj*) next; //casting the uintptr_t typed pointer next as a linkedObj* so we can access it's xorptr value in the next loop
         }
-
-        return XORpair{current, prev}; 
+        
+        return XORpair{current, prev};
     }
 
     //removes node n
@@ -98,8 +105,10 @@ public:
  
         linkedObj* prev;
         linkedObj* next;
-        auto [target, prevptr] = get(n);
-        prev = (linkedObj*) prevptr; //using this and then pushing to prev linkedObj* so that we can preserve the original structure of this method. If I was writing from scratch I would just store prev as uintptr_t
+        linkedObj* target;
+        XORpair pair = get(n);
+        target = pair.node;
+        prev = (linkedObj*) pair.prev;
 
         //handles case of deleting node from single element list 
         if (size ==1){
