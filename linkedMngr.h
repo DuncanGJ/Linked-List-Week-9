@@ -1,6 +1,14 @@
 #pragma once
 #include "linkedObj.h"
 #include <stdexcept>
+
+//struct for storing our node in get and ptr of the previous node so that we can minimize the number of traversals when accessing arbitrary nodes
+struct XORpair{
+    linkedObj* node;
+    uintptr_t prev;
+};
+
+
 class XORLinkedList{
 private:
     linkedObj* head;
@@ -16,13 +24,11 @@ public:
         linkedObj* next; 
         uintptr_t prev = 0; 
         for(int i = 0; i <= size-1; i++){
-            next = (linkedObj*)(head->xorptr ^ prev); //xorptr ^ prev = next 
+            next = (linkedObj*)(target->xorptr ^ prev); //xorptr ^ prev = next 
             prev = (uintptr_t) target; //casting target as uintptr_t which will become prev on the next iteration
             delete(target); //delete target
             target = next; //target is next, ready for next iteration
         }
-        delete(head); //cleaning up in case anything is missed
-        delete(tail);
     }
 
     //very basic append method
@@ -41,26 +47,21 @@ public:
 
     //insert method 
     void insert(int place, const string& fName, const string& lName, const string& address, const string& city, const string& phoneNumber){
-        if(place < 0 || place >= size){
-            throw std::out_of_range("index out of bounds");
+        if(place <= 0 || place > size){
+            throw std::out_of_range("index out of bounds");//fails early
         }
 
         linkedObj* node = new linkedObj(fName, lName, address, city, phoneNumber); //instantiates new list node 
-        linkedObj* target;
-        uintptr_t prev;
-        auto [target, prev] = get(place-1);
+        auto [target, prev] = get(place-1); //using auto to assign returned struct fields to their respective local variables 
         
         target->xorptr ^= prev ^ (uintptr_t) node; //replaces prev ptr with node's pointer in target. The beauty of XOR is that this is symmetric for head and tail
         node-> xorptr = prev ^ (uintptr_t) target; //inserts prev and next node in our XORed ptr, again symmetric in case of head or tail
-        if(prev == 0){
-            if(place = 0){
-                head = node;
-            } else if(place = size-1){
-                tail = node;
-            }
+        if(prev == 0&& place ==1){
+            head = node;
+        } else{
+              ((linkedObj*) prev)->xorptr ^=   (uintptr_t) target ^ (uintptr_t) node; //for non-head/tail nodes we also clear the target node from it's xorptr and xor in the new node 
         }
-
-
+        size++;
     }
     //Returns node n, return XORpair struct, which allows us to access nodes at an arbitrary index with just 1 traversal. Adds additional complexity in exchange for reducing the # of traversals required.
     XORpair get(int n){
@@ -94,12 +95,11 @@ public:
         if (n < 0 || n >= size) {
             throw std::out_of_range("index out of bounds"); //fails early
         }
-        uintptr_t prevptr; //using this and then pushing to prev linkedObj* so that we can preserve the original structure of this method. If I was writing from scratch I would just store prev as uintptr_t
+ 
         linkedObj* prev;
-        linkedObj* target;
         linkedObj* next;
         auto [target, prevptr] = get(n);
-        prev = (linkedObj*) prevptr; //kinda hacky
+        prev = (linkedObj*) prevptr; //using this and then pushing to prev linkedObj* so that we can preserve the original structure of this method. If I was writing from scratch I would just store prev as uintptr_t
 
         //handles case of deleting node from single element list 
         if (size ==1){
@@ -118,6 +118,7 @@ public:
             prev -> xorptr ^= (uintptr_t)target ^0;
             tail = prev;
         } else{ //all other cases
+            next = (linkedObj*) (target->xorptr ^ (uintptr_t) prev); //gathering next from prev & target
             prev -> xorptr ^= (uintptr_t)target ^ (uintptr_t) next;
             next -> xorptr ^= (uintptr_t)target ^ (uintptr_t) prev;
         }
@@ -141,7 +142,3 @@ private:
     }
 };
 
-struct XORpair{
-    linkedObj* node;
-    uintptr_t prev;
-};
