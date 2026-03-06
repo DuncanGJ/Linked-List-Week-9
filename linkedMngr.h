@@ -10,6 +10,21 @@ private:
 public:
     XORLinkedList() : head(nullptr), tail(nullptr), size(0){} //default constructor
 
+    //destructor - loops through each node and deletes 
+    ~XORLinkedList(){
+        linkedObj* target = head; 
+        linkedObj* next; 
+        uintptr_t prev = 0; 
+        for(int i = 0; i <= size-1; i++){
+            next = (linkedObj*)(head->xorptr ^ prev); //xorptr ^ prev = next 
+            prev = (uintptr_t) target; //casting target as uintptr_t which will become prev on the next iteration
+            delete(target); //delete target
+            target = next; //target is next, ready for next iteration
+        }
+        delete(head); //cleaning up in case anything is missed
+        delete(tail);
+    }
+
     //very basic append function
     void append(const string& fName, const string& lName, const string& address, const string& city, const string& phoneNumber){
         linkedObj* node = new linkedObj(fName, lName, address, city, phoneNumber); //instantiates new list node 
@@ -55,9 +70,6 @@ public:
         if (n < 0 || n >= size) {
             throw std::out_of_range("index out of bounds"); //fails early
         }
-        if (size == 0 ){
-            throw std::out_of_range("empty list"); //fails early
-        }
 
         linkedObj* target = get(n); 
         if (size ==1){
@@ -84,5 +96,20 @@ public:
         }
         delete target;
         size--;
-    }    
+    }   
+
+    //to string public implementation
+    string toString(){
+        return toString(head, 0);
+    }
+    
+private:
+
+    //private implementation of to string, recursive
+    string toString(linkedObj* obj, uintptr_t prev){
+        if (obj == nullptr){
+            return "null";
+        }
+        return obj->fName + " <--> " + toString((linkedObj*)(obj->xorptr^prev), (uintptr_t) obj);
+    }
 };
